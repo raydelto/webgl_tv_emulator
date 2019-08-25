@@ -59,11 +59,11 @@ function main() {
   };
 
   const buffers = initBuffers(gl, programInfo);
-  const renderLoop = (gl, programInfo, buffers)=>{
+  const renderLoop = (gl, programInfo, buffers) => {
     drawScene(gl, programInfo, buffers);
     window.setTimeout(renderLoop, 1000 / 60, gl, programInfo, buffers);
   }
-  
+
   renderLoop(gl, programInfo, buffers);
 }
 
@@ -71,20 +71,20 @@ function initBuffers(gl, programInfo) {
 
   const positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-                
+
   let numComponents = 2; // x , y
   let type = gl.FLOAT;
   let normalize = false;
   let stride = 5 * SIZE_OF_FLOAT;
   let offset = 0;
-  
+
   gl.vertexAttribPointer(
-      programInfo.attribLocations.vertexPosition,
-      numComponents,
-      type,
-      normalize,
-      stride,
-      offset);
+    programInfo.attribLocations.vertexPosition,
+    numComponents,
+    type,
+    normalize,
+    stride,
+    offset);
   gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 
   numComponents = 3; // r,g,b
@@ -93,33 +93,33 @@ function initBuffers(gl, programInfo) {
   stride = 5 * SIZE_OF_FLOAT;
   offset = 2 * SIZE_OF_FLOAT;
   gl.vertexAttribPointer(
-      programInfo.attribLocations.vertexColor,
-      numComponents,
-      type,
-      normalize,
-      stride,
-      offset);
-  gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);  
-        
+    programInfo.attribLocations.vertexColor,
+    numComponents,
+    type,
+    normalize,
+    stride,
+    offset);
+  gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
+
   return {
     position: positionBuffer
   };
 }
 
-function updateBuffer(gl, buffers){
+function updateBuffer(gl, buffers) {
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
   const positions = [
-      1.0,  1.0, Math.random(),Math.random(),Math.random() ,
-     -1.0,  1.0, Math.random(),Math.random(),Math.random() ,
-      1.0, -1.0, Math.random(),Math.random(),Math.random() ,
-     -1.0, -1.0, Math.random(),Math.random(),Math.random() 
+    1.0, 1.0, Math.random(), Math.random(), Math.random(),
+    -1.0, 1.0, Math.random(), Math.random(), Math.random(),
+    1.0, -1.0, Math.random(), Math.random(), Math.random(),
+    -1.0, -1.0, Math.random(), Math.random(), Math.random()
   ];
- 
+
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
 }
 
 function drawScene(gl, programInfo, buffers) {
-  updateBuffer(gl,buffers);
+  updateBuffer(gl, buffers);
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -131,8 +131,8 @@ function drawScene(gl, programInfo, buffers) {
 function initShaderProgram(gl, vsSource, fsSource) {
   const vertexShader = loadShader(gl, gl.VERTEX_SHADER, vsSource);
   const fragmentShader = loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
-
   const shaderProgram = gl.createProgram();
+  
   gl.attachShader(shaderProgram, vertexShader);
   gl.attachShader(shaderProgram, fragmentShader);
   gl.linkProgram(shaderProgram);
@@ -151,7 +151,7 @@ function loadShader(gl, type, source) {
   gl.compileShader(shader);
 
   if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    alert('An error occurred compiling the '+ (type === gl.VERTEX_SHADER ? 'vertex' : 'fragment') +' shader:\n ' + gl.getShaderInfoLog(shader));
+    alert('An error occurred compiling the ' + (type === gl.VERTEX_SHADER ? 'vertex' : 'fragment') + ' shader:\n ' + gl.getShaderInfoLog(shader));
     gl.deleteShader(shader);
     return null;
   }
