@@ -1,7 +1,7 @@
 main();
 
 function main() {
-  const canvas = document.querySelector('#glcanvas');
+  const canvas = document.getElementById('glcanvas');
   const gl = canvas.getContext('webgl');
 
   if (!gl) {
@@ -45,7 +45,6 @@ function initBuffers(gl) {
   const positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
-
   const positions = [
      1.0,  1.0,
     -1.0,  1.0,
@@ -53,16 +52,12 @@ function initBuffers(gl) {
     -1.0, -1.0,
   ];
 
-  // Now pass the list of positions into WebGL to build the
-  // shape. We do this by creating a Float32Array from the
-  // JavaScript array, then use it to fill the current buffer.
-
   gl.bufferData(gl.ARRAY_BUFFER,
                 new Float32Array(positions),
                 gl.STATIC_DRAW);
 
   return {
-    position: positionBuffer,
+    position: positionBuffer
   };
 }
 
@@ -70,27 +65,24 @@ function drawScene(gl, programInfo, buffers) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  {
-    const numComponents = 2;
-    const type = gl.FLOAT;
-    const normalize = false;
-    const stride = 0;
-    const offset = 0;
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-    gl.vertexAttribPointer(
-        programInfo.attribLocations.vertexPosition,
-        numComponents,
-        type,
-        normalize,
-        stride,
-        offset);
-    gl.enableVertexAttribArray(
-        programInfo.attribLocations.vertexPosition);
-  }
+  const numComponents = 2; // x , y
+  const type = gl.FLOAT;
+  const normalize = false;
+  const stride = 0;
+  const offset = 0;
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+  gl.vertexAttribPointer(
+      programInfo.attribLocations.vertexPosition,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset);
+  gl.enableVertexAttribArray(
+      programInfo.attribLocations.vertexPosition);
 
   gl.useProgram(programInfo.program);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
 }
 
 function initShaderProgram(gl, vsSource, fsSource) {
