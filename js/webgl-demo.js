@@ -1,3 +1,4 @@
+const SIZE_OF_FLOAT = 4;
 main();
 
 function main() {
@@ -13,12 +14,15 @@ function main() {
 
   const vsSource = `
   attribute vec4 aVertexPosition;
+  attribute vec3 aVertexColor;
   varying vec4 vertexPosition;
+  varying vec3 vertexColor;
 
   void main()
   {
     vertexPosition =  aVertexPosition;
     gl_Position =  aVertexPosition;
+    vertexColor = aVertexColor;
   }
 `;
 
@@ -27,6 +31,7 @@ function main() {
   const fsSource = `
     precision mediump float;
     varying vec4 vertexPosition;
+    varying vec3 vertexColor;
     float rand(vec2 co)
     {
         highp float a = 12.9898;
@@ -39,7 +44,7 @@ function main() {
   
     void main() 
     {
-      gl_FragColor = vec4(rand(vertexPosition.xy),rand(vertexPosition.xy),rand(vertexPosition.xy),1);
+      gl_FragColor = vec4(rand(vertexColor.rg),rand(vertexColor.rb),rand(vertexColor.gb) ,1.0);
     }
   `;
 
@@ -49,6 +54,7 @@ function main() {
     program: shaderProgram,
     attribLocations: {
       vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
+      vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor')
     }
   };
 
@@ -62,21 +68,22 @@ function initBuffers(gl, programInfo) {
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
   const positions = [
-     1.0,  1.0,
-    -1.0,  1.0,
-     1.0, -1.0,
-    -1.0, -1.0,
+     1.0,  1.0, 1.0,0.0,0.0 ,
+    -1.0,  1.0, 0.0,1.0,.0 ,
+     1.0, -1.0, 0.0,0.0,1.0 ,
+    -1.0, -1.0, 1.0,1.0,1.0 
   ];
 
   gl.bufferData(gl.ARRAY_BUFFER,
                 new Float32Array(positions),
                 gl.STATIC_DRAW);
                 
-  const numComponents = 2; // x , y
-  const type = gl.FLOAT;
-  const normalize = false;
-  const stride = 0;
-  const offset = 0;
+  let numComponents = 2; // x , y
+  let type = gl.FLOAT;
+  let normalize = false;
+  let stride = 5 * SIZE_OF_FLOAT;
+  let offset = 0;
+  
   gl.vertexAttribPointer(
       programInfo.attribLocations.vertexPosition,
       numComponents,
@@ -84,7 +91,21 @@ function initBuffers(gl, programInfo) {
       normalize,
       stride,
       offset);
-  gl.enableVertexAttribArray(positionBuffer);
+  gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
+
+  numComponents = 3; // r,g,b
+  type = gl.FLOAT;
+  normalize = false;
+  stride = 5 * SIZE_OF_FLOAT;
+  offset = 2 * SIZE_OF_FLOAT;
+  gl.vertexAttribPointer(
+      programInfo.attribLocations.vertexColor,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset);
+  gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);  
         
   return {
     position: positionBuffer
