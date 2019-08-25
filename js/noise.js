@@ -1,7 +1,7 @@
 function playNoise() {
 
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    // Create an empty three-second stereo buffer at the sample rate of the AudioContext
+    // Create an empty 100 seconds stereo buffer
     const myArrayBuffer = audioContext.createBuffer(2, audioContext.sampleRate * 100, audioContext.sampleRate);
 
     // Fill the buffer with white noise;
