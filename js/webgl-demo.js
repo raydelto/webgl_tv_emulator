@@ -59,24 +59,18 @@ function main() {
   };
 
   const buffers = initBuffers(gl, programInfo);
-  drawScene(gl, programInfo, buffers);
+  const renderLoop = (gl, programInfo, buffers)=>{
+    drawScene(gl, programInfo, buffers);
+    window.setTimeout(renderLoop, 1000 / 60, gl, programInfo, buffers);
+  }
+  
+  renderLoop(gl, programInfo, buffers);
 }
 
 function initBuffers(gl, programInfo) {
 
   const positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-
-  const positions = [
-     1.0,  1.0, 1.0,0.0,0.0 ,
-    -1.0,  1.0, 0.0,1.0,.0 ,
-     1.0, -1.0, 0.0,0.0,1.0 ,
-    -1.0, -1.0, 1.0,1.0,1.0 
-  ];
-
-  gl.bufferData(gl.ARRAY_BUFFER,
-                new Float32Array(positions),
-                gl.STATIC_DRAW);
                 
   let numComponents = 2; // x , y
   let type = gl.FLOAT;
@@ -112,7 +106,20 @@ function initBuffers(gl, programInfo) {
   };
 }
 
+function updateBuffer(gl, buffers){
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
+  const positions = [
+      1.0,  1.0, Math.random(),Math.random(),Math.random() ,
+     -1.0,  1.0, Math.random(),Math.random(),Math.random() ,
+      1.0, -1.0, Math.random(),Math.random(),Math.random() ,
+     -1.0, -1.0, Math.random(),Math.random(),Math.random() 
+  ];
+ 
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+}
+
 function drawScene(gl, programInfo, buffers) {
+  updateBuffer(gl,buffers);
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clear(gl.COLOR_BUFFER_BIT);
 
