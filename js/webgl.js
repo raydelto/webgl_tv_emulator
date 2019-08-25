@@ -1,7 +1,6 @@
 const SIZE_OF_FLOAT = 4;
-main();
 
-function main() {
+function startNoiseAnimation() {
   const canvas = document.getElementById('glcanvas');
   const gl = canvas.getContext('webgl');
 

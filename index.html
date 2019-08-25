@@ -5,14 +5,28 @@
   <meta charset="utf-8">
   <title>WebGL TV Emulator</title>
   <link rel="stylesheet" href="css/webgl.css" type="text/css">
+
+  <script type="text/javascript">
+    function play() {
+      startNoiseAnimation();
+      playNoise();
+      document.getElementById("onButton").setAttribute('hidden', 'hidden');
+      document.getElementById("offButton").removeAttribute('hidden');
+    }
+  </script>
+
 </head>
 
 <body>
   <div class="placeholder">
     <canvas id="glcanvas" width="640" height="480"></canvas>
+
+    <button id="onButton" onClick="play()">Turn TV On</button>
+    <button id="offButton" hidden onClick="location.reload()">Turn TV Off</button>
   </div>
 </body>
 
+<script src="js/noise.js"></script>
 <script src="js/webgl.js"></script>
 
 </html>
