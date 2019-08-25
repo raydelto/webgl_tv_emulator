@@ -36,11 +36,11 @@ function main() {
     }
   };
 
-  const buffers = initBuffers(gl);
+  const buffers = initBuffers(gl, programInfo);
   drawScene(gl, programInfo, buffers);
 }
 
-function initBuffers(gl) {
+function initBuffers(gl, programInfo) {
 
   const positionBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -55,7 +55,21 @@ function initBuffers(gl) {
   gl.bufferData(gl.ARRAY_BUFFER,
                 new Float32Array(positions),
                 gl.STATIC_DRAW);
-
+                
+  const numComponents = 2; // x , y
+  const type = gl.FLOAT;
+  const normalize = false;
+  const stride = 0;
+  const offset = 0;
+  gl.vertexAttribPointer(
+      programInfo.attribLocations.vertexPosition,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset);
+  gl.enableVertexAttribArray(positionBuffer);
+        
   return {
     position: positionBuffer
   };
@@ -65,22 +79,7 @@ function drawScene(gl, programInfo, buffers) {
   gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
   gl.clear(gl.COLOR_BUFFER_BIT);
 
-  const numComponents = 2; // x , y
-  const type = gl.FLOAT;
-  const normalize = false;
-  const stride = 0;
-  const offset = 0;
   gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
-  gl.vertexAttribPointer(
-      programInfo.attribLocations.vertexPosition,
-      numComponents,
-      type,
-      normalize,
-      stride,
-      offset);
-  gl.enableVertexAttribArray(
-      programInfo.attribLocations.vertexPosition);
-
   gl.useProgram(programInfo.program);
   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 }
