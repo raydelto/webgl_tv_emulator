@@ -24,8 +24,12 @@ class Noise{
 	    // This is the AudioNode to use when we want to play an AudioBuffer
 	    this.noiseSource = this.audioContext.createBufferSource();
 	
+		this.gainNode = this.audioContext.createGain();
+
 	    // set the buffer in the AudioBufferSourceNode
-	    this.noiseSource.buffer = myArrayBuffer;
+		this.noiseSource.buffer = myArrayBuffer;
+		this.noiseSource.connect(this.gainNode);
+		this.gainNode.connect(this.audioContext.destination);
     }
 
     play() {
@@ -41,5 +45,35 @@ class Noise{
     {
         this.initialized = false;
         this.noiseSource.stop();
-    }
+	}
+
+	mute(activated)
+	{
+		this.initialized = false;
+		this.gainNode.gain.value = activated ? -1 : 1;
+	}
+	
+	decrease()
+	{
+		let result = false;
+		this.initialized = result;
+		if (this.gainNode.gain.value > -1) {
+			this.gainNode.gain.value -= 0.1;
+			result = true;
+		}
+
+		return result;
+	}
+
+	increase()
+	{
+		let result = false;
+		this.initialized = result;
+		if (this.gainNode.gain.value < 1) {
+			this.gainNode.gain.value += 0.1;
+			result = true;
+		}
+
+		return result;
+	}
 }
