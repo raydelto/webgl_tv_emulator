@@ -1,11 +1,13 @@
 .controls {
+  display: flex;
+  font-weight: 600;
+  align-items: center;
+  margin-top: 10px;
   text-align: center;
-  display: inline;
 }
 
 .button {
   margin: 0 1.5rem 0 3rem;
-  display: inline-block;
   width: 100px;
   height: 100px;
   box-sizing: border-box;
@@ -14,7 +16,6 @@
   border-right: 0 solid transparent;
   border-bottom: 0 solid transparent;
   border-left: 0 solid transparent;
-  margin-top: 10px;
 }
 .button.play {
   border-top: 50px solid transparent;
@@ -44,18 +45,24 @@
   border-left: 33.3333333333px solid #7e7e7e;
 }
 
-.volume {
-  text-align: center;
-  margin-top: 10px;
-  width: 15%;
-  color: #8a8a8a;
-  background: #333;
+.channel-displayer {
+  color: #fff;
   font-size: 32px;
+  position: absolute;
+  top: 0;
+}
+
+.volume-displayer {
+  background: #333;
+  color: #8a8a8a;
+  font-size: 32px;
+  margin-top: 10px;
+  text-align: center;
+  width: 15%;
 }
 
 .mute {
   margin: 0 3rem 0 1.5rem;
-  display: inline-block;
   border: 50px solid #333;
 }
 .mute:hover {
@@ -67,7 +74,6 @@
 
 .unmute {
   margin: 0 3rem 0 1.5rem;
-  display: inline-block;
   border: 50px solid #700000;
 }
 .unmute:hover {
@@ -78,11 +84,11 @@
 }
 
 .up {
-  display: inline-block;
   border-top: 0 solid transparent;
   border-right: 50px solid transparent;
   border-bottom: 90px solid #333;
   border-left: 50px solid transparent;
+  margin-bottom: 1.5rem;
 }
 .up:hover {
   border-bottom: 90px solid #4d4d4d;
@@ -92,11 +98,11 @@
 }
 
 .down {
-  display: inline-block;
   border-top: 90px solid #333;
   border-right: 50px solid transparent;
   border-bottom: 0 solid transparent;
   border-left: 50px solid transparent;
+  margin-top: 1.5rem;
 }
 .down:hover {
   border-top: 90px solid #4d4d4d;
