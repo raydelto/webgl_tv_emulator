@@ -1,6 +1,16 @@
 .controls {
+  display: inline-block;
+  font-weight: 600;
+  margin-top: 10px;
   text-align: center;
-  display: inline;
+}
+
+.volume {
+  display: inline-block;
+}
+
+.channel {
+  display: inline-block;
 }
 
 .button {
@@ -14,7 +24,6 @@
   border-right: 0 solid transparent;
   border-bottom: 0 solid transparent;
   border-left: 0 solid transparent;
-  margin-top: 10px;
 }
 .button.play {
   border-top: 50px solid transparent;
@@ -44,13 +53,20 @@
   border-left: 33.3333333333px solid #7e7e7e;
 }
 
-.volume {
-  text-align: center;
-  margin-top: 10px;
-  width: 15%;
-  color: #8a8a8a;
-  background: #333;
+.channel-displayer {
+  color: #fff;
   font-size: 32px;
+  position: absolute;
+  top: 0;
+}
+
+.volume-displayer {
+  background: #333;
+  color: #8a8a8a;
+  font-size: 32px;
+  margin-top: 10px;
+  text-align: center;
+  width: 15%;
 }
 
 .mute {
@@ -78,11 +94,11 @@
 }
 
 .up {
-  display: inline-block;
   border-top: 0 solid transparent;
   border-right: 50px solid transparent;
   border-bottom: 90px solid #333;
   border-left: 50px solid transparent;
+  margin-bottom: 1.5rem;
 }
 .up:hover {
   border-bottom: 90px solid #4d4d4d;
@@ -92,11 +108,11 @@
 }
 
 .down {
-  display: inline-block;
   border-top: 90px solid #333;
   border-right: 50px solid transparent;
   border-bottom: 0 solid transparent;
   border-left: 50px solid transparent;
+  margin-top: 1.5rem;
 }
 .down:hover {
   border-top: 90px solid #4d4d4d;
