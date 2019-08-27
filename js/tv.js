@@ -1,23 +1,20 @@
 const playButton = document.querySelector('.button');
-const audio = new Audio('./audio/static.mp3');
-audio.onended = () => {
-    audio.currentTime = 0
-    audio.play()
-}
-const TV = new TVRenderer()
-TV.Off()
+const tv = new TVRenderer();
+const noise = new Noise();
+
+tv.Off();
+
 playButton.addEventListener('click', (e) => {
-  const tgt = e.target;
-  if (tgt.classList.contains('play')) {
-    TV.On()
-    tgt.classList.remove('play');
-    tgt.classList.add('pause');
-    audio.play()
+  const eventTarget = e.target;
+  if (eventTarget.classList.contains('play')) {
+    tv.On();
+    eventTarget.classList.remove('play');
+    eventTarget.classList.add('pause');
+    noise.play();
   } else {
-    TV.Off()
-    audio.pause()
-    audio.currentTime = 0
-    tgt.classList.remove('pause');
-    tgt.classList.add('play');
+    tv.Off();
+    eventTarget.classList.remove('pause');
+    eventTarget.classList.add('play');
+    noise.stop();
   }
 });
