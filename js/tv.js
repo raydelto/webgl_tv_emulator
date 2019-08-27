@@ -30,7 +30,6 @@ function toggleMute(active) {
 }
 
 function changeChannel(channel) {
-  // TODO TV should blink
   channelDisplayer.innerHTML = channel;
   // Hide channel number after 15 seconds
   if (channel !== '') {
@@ -47,22 +46,22 @@ function adjustVolumePercentage(volume) {
 playButton.addEventListener('click', (e) => {
   const eventTarget = e.target;
   if (eventTarget.classList.contains('play')) {
-    toggleButtonsDisabled(false);
-    adjustVolumePercentage(volume = 100);
-    changeChannel(channel = (channel === '') ? '1' : channel);
     tv.On();
     eventTarget.classList.remove('play');
     eventTarget.classList.add('pause');
     noise.play();
+    toggleButtonsDisabled(false);
+    adjustVolumePercentage(volume = 100);
+    changeChannel(channel = (channel === '') ? '1' : channel);
   } else {
-    toggleButtonsDisabled(true);
-    adjustVolumePercentage(volume = 0);
-    changeChannel('');
-    toggleMute(true);
     tv.Off();
     eventTarget.classList.remove('pause');
     eventTarget.classList.add('play');
     noise.stop();
+    toggleButtonsDisabled(true);
+    adjustVolumePercentage(volume = 0);
+    changeChannel('');
+    toggleMute(true);
   }
 });
 

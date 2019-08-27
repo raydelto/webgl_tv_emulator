@@ -1,21 +1,13 @@
 .controls {
-  display: inline-block;
+  display: flex;
   font-weight: 600;
+  align-items: center;
   margin-top: 10px;
   text-align: center;
 }
 
-.volume {
-  display: inline-block;
-}
-
-.channel {
-  display: inline-block;
-}
-
 .button {
   margin: 0 1.5rem 0 3rem;
-  display: inline-block;
   width: 100px;
   height: 100px;
   box-sizing: border-box;
@@ -71,7 +63,6 @@
 
 .mute {
   margin: 0 3rem 0 1.5rem;
-  display: inline-block;
   border: 50px solid #333;
 }
 .mute:hover {
@@ -83,7 +74,6 @@
 
 .unmute {
   margin: 0 3rem 0 1.5rem;
-  display: inline-block;
   border: 50px solid #700000;
 }
 .unmute:hover {
