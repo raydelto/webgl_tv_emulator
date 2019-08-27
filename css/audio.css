@@ -16,7 +16,6 @@
   border-left: 0 solid transparent;
   margin-top: 10px;
 }
-
 .button.play {
   border-top: 50px solid transparent;
   border-right: 0 solid transparent;
@@ -65,6 +64,7 @@
 .mute:active {
   border: 50px solid #7e7e7e;
 }
+
 .unmute {
   margin: 0 3rem 0 1.5rem;
   display: inline-block;
@@ -90,6 +90,7 @@
 .up:active {
   border-bottom: 90px solid #7e7e7e;
 }
+
 .down {
   display: inline-block;
   border-top: 90px solid #333;

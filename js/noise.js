@@ -1,12 +1,12 @@
 class Noise{
 
-    constructor(){
+    constructor() {
     }
 
-    init(){
+    init() {
 	    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-	    // Create an empty 100 seconds stereo buffer
-	    const myArrayBuffer = this.audioContext.createBuffer(2, this.audioContext.sampleRate * 100, this.audioContext.sampleRate);
+	    // Create an empty 15 seconds stereo buffer
+	    const myArrayBuffer = this.audioContext.createBuffer(2, this.audioContext.sampleRate * 15, this.audioContext.sampleRate);
 	
 	    // Fill the buffer with white noise;
 	    // just random values between -1.0 and 1.0
@@ -28,6 +28,7 @@ class Noise{
 
 	    // set the buffer in the AudioBufferSourceNode
 		this.noiseSource.buffer = myArrayBuffer;
+
 		this.noiseSource.connect(this.gainNode);
 		this.gainNode.connect(this.audioContext.destination);
     }
@@ -41,20 +42,17 @@ class Noise{
 	    this.noiseSource.start();
     }
     
-    stop()
-    {
+    stop() {
         this.initialized = false;
         this.noiseSource.stop();
 	}
 
-	mute(activated)
-	{
+	mute(activated) {
 		this.initialized = false;
 		this.gainNode.gain.value = activated ? -1 : 1;
 	}
 	
-	decrease()
-	{
+	decrease() {
 		let result = false;
 		this.initialized = result;
 		if (this.gainNode.gain.value > -1) {
@@ -65,8 +63,7 @@ class Noise{
 		return result;
 	}
 
-	increase()
-	{
+	increase() {
 		let result = false;
 		this.initialized = result;
 		if (this.gainNode.gain.value < 1) {
