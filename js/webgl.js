@@ -43,6 +43,7 @@ class TVRenderer {
       precision mediump float;
       varying vec4 vertexPosition;
       varying vec3 vertexColor;
+      uniform bool isTvOn;
       float rand(vec2 co)
       {
           highp float a = 12.9898;
@@ -55,7 +56,7 @@ class TVRenderer {
     
       void main() 
       {
-        gl_FragColor = vec4(rand(vertexColor.rg),rand(vertexColor.rb),rand(vertexColor.gb) ,1.0);
+        gl_FragColor = isTvOn ? vec4(rand(vertexColor.rg),rand(vertexColor.rb),rand(vertexColor.gb) ,1.0) : vec4(0,0,0,1);
       }
     `;
   
@@ -66,19 +67,21 @@ class TVRenderer {
       attribLocations: {
         vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
         vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor')
-      }
+      },
+      uniformLocations: {
+        isTvOn: gl.getUniformLocation(shaderProgram, 'isTvOn')
+      },
+      shouldRender
     };
   
     const buffers = this.initBuffers(gl, programInfo);
     const renderLoop = (gl, programInfo, buffers) => {
       if (!shouldRender){
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
         clearTimeout(this.timeOutHandler); 
-        
-      }else{
-        this.drawScene(gl, programInfo, buffers);
+      }else{        
         this.timeOutHandler = window.setTimeout(renderLoop, 1000 / 60, gl, programInfo, buffers);
       }
+      this.drawScene(gl, programInfo, buffers);
   
     }
   
@@ -134,6 +137,7 @@ class TVRenderer {
   
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
   }
+
   drawScene(gl, programInfo, buffers) {
     this.updateBuffer(gl, buffers);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
@@ -141,6 +145,7 @@ class TVRenderer {
   
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
     gl.useProgram(programInfo.program);
+    gl.uniform1i(programInfo.uniformLocations.isTvOn, programInfo.shouldRender);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
