@@ -1,4 +1,6 @@
 const SIZE_OF_FLOAT = 4;
+const gl = document.getElementById('glcanvas').getContext('webgl');
+
 class TVRenderer {
 
   constructor() {
@@ -14,8 +16,6 @@ class TVRenderer {
   }
 
   RenderTV(shouldRender) {
-    const canvas = document.getElementById('glcanvas');
-    const gl = canvas.getContext('webgl');
 
     if (!gl) {
       alert('Unable to initialize WebGL. Your browser or machine may not support it.');
@@ -61,7 +61,7 @@ class TVRenderer {
       }
     `;
 
-    const shaderProgram = this.initShaderProgram(gl, vsSource, fsSource);
+    const shaderProgram = this.initShaderProgram(vsSource, fsSource);
 
     const programInfo = {
       program: shaderProgram,
@@ -75,21 +75,21 @@ class TVRenderer {
       shouldRender
     };
 
-    const buffers = this.initBuffers(gl, programInfo);
-    const renderLoop = (gl, programInfo, buffers) => {
+    const buffers = this.initBuffers(programInfo);
+    const renderLoop = (programInfo, buffers) => {
       if (!shouldRender) {
         clearTimeout(this.timeOutHandler);
       } else {
-        this.timeOutHandler = window.setTimeout(renderLoop, 1000 / 60, gl, programInfo, buffers);
+        this.timeOutHandler = window.setTimeout(renderLoop, 1000 / 60, programInfo, buffers);
       }
-      this.drawScene(gl, programInfo, buffers);
+      this.drawScene(programInfo, buffers);
 
     }
 
-    renderLoop(gl, programInfo, buffers);
+    renderLoop(programInfo, buffers);
   }
-  initBuffers(gl, programInfo) {
 
+  initBuffers(programInfo) {
     const positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
 
@@ -127,7 +127,7 @@ class TVRenderer {
     };
   }
 
-  updateBuffer(gl, buffers) {
+  updateBuffer(buffers) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
     const positions = [
       1.0, 1.0, Math.random(), Math.random(), Math.random(),
@@ -139,8 +139,8 @@ class TVRenderer {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
   }
 
-  drawScene(gl, programInfo, buffers) {
-    this.updateBuffer(gl, buffers);
+  drawScene(programInfo, buffers) {
+    this.updateBuffer(buffers);
     gl.clearColor(0.0, 0.0, 0.0, 1.0);  // Clear to black, fully opaque
     gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -150,9 +150,59 @@ class TVRenderer {
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
-  initShaderProgram(gl, vsSource, fsSource) {
-    const vertexShader = this.loadShader(gl, gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = this.loadShader(gl, gl.FRAGMENT_SHADER, fsSource);
+  isPowerOf2(value) {
+    return (value & (value - 1)) == 0;
+  }
+
+  loadTexture(url) {
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+
+    // Because images have to be download over the internet
+    // they might take a moment until they are ready.
+    // Until then put a single pixel in the texture so we can
+    // use it immediately. When the image has finished downloading
+    // we'll update the texture with the contents of the image.
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const width = 1;
+    const height = 1;
+    const border = 0;
+    const srcFormat = gl.RGBA;
+    const srcType = gl.UNSIGNED_BYTE;
+    const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+      width, height, border, srcFormat, srcType,
+      pixel);
+
+    const image = new Image();
+    image.onload = function () {
+      gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+        srcFormat, srcType, image);
+
+      // WebGL1 has different requirements for power of 2 images
+      // vs non power of 2 images so check if the image is a
+      // power of 2 in both dimensions.
+      if (this.isPowerOf2(image.width) && this.isPowerOf2(image.height)) {
+        // Yes, it's a power of 2. Generate mips.
+        gl.generateMipmap(gl.TEXTURE_2D);
+      } else {
+        // No, it's not a power of 2. Turn off Mipmaps and set
+        // wrapping to clamp to edge
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      }
+    };
+    image.src = url;
+
+    return texture;
+  }
+
+  initShaderProgram(vsSource, fsSource) {
+    const vertexShader = this.loadShader(gl.VERTEX_SHADER, vsSource);
+    const fragmentShader = this.loadShader(gl.FRAGMENT_SHADER, fsSource);
     const shaderProgram = gl.createProgram();
 
     gl.attachShader(shaderProgram, vertexShader);
@@ -167,7 +217,7 @@ class TVRenderer {
     return shaderProgram;
   }
 
-  loadShader(gl, type, source) {
+  loadShader(type, source) {
     const shader = gl.createShader(type);
     gl.shaderSource(shader, source);
     gl.compileShader(shader);
@@ -180,5 +230,5 @@ class TVRenderer {
 
     return shader;
   }
-  
+
 }
