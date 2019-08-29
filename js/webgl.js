@@ -26,15 +26,19 @@ class TVRenderer {
 
     const vsSource = `
     attribute vec4 aVertexPosition;
-    attribute vec3 aVertexColor;
+    attribute vec4 aVertexColor;
+    attribute vec2 aTextureCoord;
+
     varying vec4 vertexPosition;
-    varying vec3 vertexColor;
+    varying vec4 vertexColor;
+    varying vec2 vertexTextureCoord;
   
     void main()
     {
       vertexPosition =  aVertexPosition;
       gl_Position =  aVertexPosition;
       vertexColor = aVertexColor;
+      vertexTextureCoord = aTextureCoord;
     }
   `;
 
@@ -43,8 +47,11 @@ class TVRenderer {
     const fsSource = `
       precision mediump float;
       varying vec4 vertexPosition;
-      varying vec3 vertexColor;
+      varying vec4 vertexColor;
+      varying vec2 vertexTextureCoord;
       uniform bool isTvOn;
+      uniform sampler2D uTextureSampler;
+  
       float rand(vec2 co)
       {
           highp float a = 12.9898;
@@ -57,6 +64,11 @@ class TVRenderer {
     
       void main() 
       {
+        if(isTvOn && rand(vertexColor.rg) > 0.9)
+        {
+          gl_FragColor = texture2D(uTextureSampler, vertexTextureCoord);
+          return;
+        }
         gl_FragColor = isTvOn ? vec4(rand(vertexColor.rg),rand(vertexColor.rb),rand(vertexColor.gb) ,1.0) : vec4(0,0,0,1);
       }
     `;
@@ -67,10 +79,12 @@ class TVRenderer {
       program: shaderProgram,
       attribLocations: {
         vertexPosition: gl.getAttribLocation(shaderProgram, 'aVertexPosition'),
-        vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor')
+        vertexColor: gl.getAttribLocation(shaderProgram, 'aVertexColor'),
+        textureCoord: gl.getAttribLocation(shaderProgram, 'aTextureCoord'),
       },
       uniformLocations: {
-        isTvOn: gl.getUniformLocation(shaderProgram, 'isTvOn')
+        isTvOn: gl.getUniformLocation(shaderProgram, 'isTvOn'),
+        uSampler: gl.getUniformLocation(shaderProgram, 'uSampler')
       },
       shouldRender
     };
@@ -85,6 +99,7 @@ class TVRenderer {
       this.drawScene(programInfo, buffers);
 
     }
+    this.texture = this.loadTexture("http://www.raydelto.org/no_signal.png");
 
     renderLoop(programInfo, buffers);
   }
@@ -96,7 +111,7 @@ class TVRenderer {
     let numComponents = 2; // x , y
     let type = gl.FLOAT;
     let normalize = false;
-    let stride = 5 * SIZE_OF_FLOAT;
+    let stride = 8 * SIZE_OF_FLOAT;
     let offset = 0;
 
     gl.vertexAttribPointer(
@@ -108,10 +123,10 @@ class TVRenderer {
       offset);
     gl.enableVertexAttribArray(programInfo.attribLocations.vertexPosition);
 
-    numComponents = 3; // r,g,b
+    numComponents = 4; // r,g,b,a
     type = gl.FLOAT;
     normalize = false;
-    stride = 5 * SIZE_OF_FLOAT;
+    stride = 8 * SIZE_OF_FLOAT;
     offset = 2 * SIZE_OF_FLOAT;
     gl.vertexAttribPointer(
       programInfo.attribLocations.vertexColor,
@@ -122,6 +137,20 @@ class TVRenderer {
       offset);
     gl.enableVertexAttribArray(programInfo.attribLocations.vertexColor);
 
+    numComponents = 2; // tx, ty
+    type = gl.FLOAT;
+    normalize = false;
+    stride = 8 * SIZE_OF_FLOAT;
+    offset = 6 * SIZE_OF_FLOAT;
+    gl.vertexAttribPointer(
+      programInfo.attribLocations.textureCoord,
+      numComponents,
+      type,
+      normalize,
+      stride,
+      offset);
+    gl.enableVertexAttribArray(programInfo.attribLocations.textureCoord);
+
     return {
       position: positionBuffer
     };
@@ -130,10 +159,10 @@ class TVRenderer {
   updateBuffer(buffers) {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
     const positions = [
-      1.0, 1.0, Math.random(), Math.random(), Math.random(),
-      -1.0, 1.0, Math.random(), Math.random(), Math.random(),
-      1.0, -1.0, Math.random(), Math.random(), Math.random(),
-      -1.0, -1.0, Math.random(), Math.random(), Math.random()
+      1.0, 1.0, Math.random(), Math.random(), Math.random(),0.0,1.0,1.0,
+      -1.0, 1.0, Math.random(), Math.random(), Math.random(),0.0,0.0,1.0,
+      1.0, -1.0, Math.random(), Math.random(), Math.random(),0.0,1.0,0.0,
+      -1.0, -1.0, Math.random(), Math.random(), Math.random(),0,0,0.0,0.0
     ];
 
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
@@ -147,6 +176,16 @@ class TVRenderer {
     gl.bindBuffer(gl.ARRAY_BUFFER, buffers.position);
     gl.useProgram(programInfo.program);
     gl.uniform1i(programInfo.uniformLocations.isTvOn, programInfo.shouldRender);
+
+  // Tell WebGL we want to affect texture unit 0 
+  gl.activeTexture(gl.TEXTURE0);
+
+  // Bind the texture to texture unit 0
+  gl.bindTexture(gl.TEXTURE_2D, this.texture);
+
+  // Tell the shader we bound the texture to texture unit 0
+  gl.uniform1i(programInfo.uniformLocations.uSampler, 0);
+
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
@@ -170,13 +209,13 @@ class TVRenderer {
     const border = 0;
     const srcFormat = gl.RGBA;
     const srcType = gl.UNSIGNED_BYTE;
-    const pixel = new Uint8Array([0, 0, 255, 255]);  // opaque blue
+    const pixel = new Uint8Array([0, 0, 0, 255]);  // opaque black
     gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
       width, height, border, srcFormat, srcType,
       pixel);
 
     const image = new Image();
-    image.onload = function () {
+    image.onload =  () => {
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
         srcFormat, srcType, image);
@@ -195,6 +234,8 @@ class TVRenderer {
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
       }
     };
+    
+    image.crossOrigin = "";
     image.src = url;
 
     return texture;
