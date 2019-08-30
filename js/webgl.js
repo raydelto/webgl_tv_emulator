@@ -64,9 +64,9 @@ class TVRenderer {
     
       void main() 
       {
-        if(isTvOn && rand(vertexColor.rg) > 0.9)
+        if(isTvOn && rand(vertexColor.rg) > 0.8)
         {
-          gl_FragColor = texture2D(uTextureSampler, vertexTextureCoord);
+          gl_FragColor = gl_FragColor = texture2D(uTextureSampler, vec2(vertexTextureCoord.s, 1.0 - vertexTextureCoord.t));
           return;
         }
         gl_FragColor = isTvOn ? vec4(rand(vertexColor.rg),rand(vertexColor.rb),rand(vertexColor.gb) ,1.0) : vec4(0,0,0,1);
